@@ -1,0 +1,8 @@
+@host='http://localhost:5274/api/v1/
+
+POST {{host}}/livres
+Content-Type: application/json
+
+{
+    "Titre": "Titre"
+}
