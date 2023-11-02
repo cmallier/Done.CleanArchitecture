@@ -17,11 +17,13 @@ public static class CreateLivre
     {
         private readonly ILivresRepository _livreRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPublisher _publisher;
 
-        public Handler( ILivresRepository livreRepository, IUnitOfWork unitOfWork )
+        public Handler( ILivresRepository livreRepository, IUnitOfWork unitOfWork, IPublisher publisher )
         {
             _livreRepository = livreRepository;
             _unitOfWork = unitOfWork;
+            _publisher = publisher;
         }
 
         public async Task<Result<LivreResponse>> Handle( Command command, CancellationToken cancellationToken )
@@ -32,7 +34,9 @@ public static class CreateLivre
 
 
             // Domain events ???
-            DomainEvents.Raise( new LivreCreatedDomainEvent( LivreId: livre.LivreId ) );
+            // DomainEvents.Raise( new LivreCreatedDomainEvent( LivreId: livre.LivreId ) );
+
+            await _publisher.Publish( new LivreCreatedDomainEvent( LivreId: livre.LivreId ), cancellationToken );
 
             int numberOfItemsAffected = await _unitOfWork.SaveChangesAsync( cancellationToken );
 
