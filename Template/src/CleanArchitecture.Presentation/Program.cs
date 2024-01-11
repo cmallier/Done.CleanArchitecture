@@ -3,6 +3,7 @@ using CleanArchitecture.Contracts.Repertoire.Livre.Requests;
 using CleanArchitecture.Infrastructure;
 using CleanArchitecture.Infrastructure.Persistence;
 using CleanArchitecture.Presentation.Endpoints;
+using CleanArchitecture.Presentation.Middlewares;
 using CleanArchitecture.Presentation.Options;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ builder.Services.AddScoped<IValidator<CreateLivreRequest>, CreateLivreRequestVal
 
 
 // DbContext
-builder.Services.AddDbContext<AppDbContext>( ( serviceProvider, options ) =>
+builder.Services.AddDbContext<AppDbContext>( (serviceProvider, options) =>
 {
     DatabaseOptions dbOptions = serviceProvider.GetService<IOptions<DatabaseOptions>>()!.Value;
 
@@ -47,18 +48,16 @@ builder.Services.AddDbContext<AppDbContext>( ( serviceProvider, options ) =>
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-
-
-
-
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if( app.Environment.IsDevelopment() )
+if ( app.Environment.IsDevelopment() )
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

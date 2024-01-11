@@ -16,12 +16,13 @@ public static class LivreEndpoints
     private const string ContentType = "application/json";
 
 
-    public static void MapLivresEndpoints( this IEndpointRouteBuilder routeBuilder )
+    public static void MapLivresEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
         RouteGroupBuilder endpoints = routeBuilder.MapGroup( BaseRoute );
 
         endpoints.MapGet( "{id:int}", GetByIdAsync )
                  .WithName( "GetLivreById" )
+                 .ProducesValidationProblem()
                  .WithTags( Tag );
 
         endpoints.MapGet( "", GetAllAsync )
@@ -43,7 +44,7 @@ public static class LivreEndpoints
                  .WithTags( Tag );
     }
 
-    private static async Task<Results<Ok<LivreResponse>, NotFound>> GetByIdAsync( int id, ISender sender, CancellationToken cancellationToken )
+    private static async Task<Results<Ok<LivreResponse>, NotFound>> GetByIdAsync(int id, ISender sender, CancellationToken cancellationToken)
     {
         // Query
         GetLivreByIdQuery query = new( id );
@@ -55,7 +56,7 @@ public static class LivreEndpoints
             : TypedResults.NotFound();
     }
 
-    private static async Task<Ok<IEnumerable<LivreResponse>>> GetAllAsync( ISender sender )
+    private static async Task<Ok<IEnumerable<LivreResponse>>> GetAllAsync(ISender sender)
     {
         // Query
         GetAllLivresQuery query = new();
@@ -65,12 +66,12 @@ public static class LivreEndpoints
         return TypedResults.Ok( response );
     }
 
-    private static async Task<Results<CreatedAtRoute<LivreResponse>, BadRequest>> CreateAsync( CreateLivreRequest request, ISender sender, IValidator<CreateLivreRequest> validator )
+    private static async Task<Results<CreatedAtRoute<LivreResponse>, BadRequest>> CreateAsync(CreateLivreRequest request, ISender sender, IValidator<CreateLivreRequest> validator)
     {
         FluentValidation.Results.ValidationResult validationResult = await validator.ValidateAsync( request );
 
         // Bad request
-        if( validationResult.IsValid is false )
+        if ( validationResult.IsValid is false )
         {
             return TypedResults.BadRequest();
         }
@@ -85,7 +86,7 @@ public static class LivreEndpoints
             : TypedResults.BadRequest();
     }
 
-    private static async Task<Results<Ok<LivreResponse>, NotFound>> UpdateAsync( int id, UpdateLivreRequest request, ISender sender )
+    private static async Task<Results<Ok<LivreResponse>, NotFound>> UpdateAsync(int id, UpdateLivreRequest request, ISender sender)
     {
         UpdateLivre.Command command = new( id, request );
 
@@ -96,14 +97,14 @@ public static class LivreEndpoints
             : TypedResults.Ok( response );
     }
 
-    private static async Task<Results<Ok<LivreResponse>, NotFound>> Update2Async( int id, UpdateLivreRequest request, ISender sender )
+    private static async Task<Results<Ok<LivreResponse>, NotFound>> Update2Async(int id, UpdateLivreRequest request, ISender sender)
     {
         // Command
         UpdateLivre2.Command command = new( id, request );
 
         Result result = await sender.Send( command );
 
-        if( result.Error == Error.NotFound )
+        if ( result.Error == Error.NotFound )
         {
             return TypedResults.NotFound();
         }
@@ -118,7 +119,7 @@ public static class LivreEndpoints
             : TypedResults.NotFound();
     }
 
-    private static async Task<Results<NoContent, NotFound>> DeleteAsync( int id, ISender sender )
+    private static async Task<Results<NoContent, NotFound>> DeleteAsync(int id, ISender sender)
     {
         DeleteLivre.Command command = new( id );
 
@@ -129,11 +130,3 @@ public static class LivreEndpoints
             : TypedResults.NotFound();
     }
 }
-
-
-
-
-
-
-
-
